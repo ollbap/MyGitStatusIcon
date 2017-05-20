@@ -1,0 +1,6 @@
+
+#Temporal editor files
+*.swp
+
+#Python compiled bytecode files
+*.pyc
