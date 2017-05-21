@@ -6,6 +6,9 @@ Created on Sun May 20
 @author: ollbap
 """
 
+import os
+import fnmatch
+
 from git import Repo
 #https://gitpython.readthedocs.io/en/stable/reference.html#module-git.repo.base
 from enum import Enum
@@ -19,28 +22,15 @@ class DirtyState(Enum):
 
 def myGitTest():
     """ Test function """
-    git_directory="/home/ollbap/test_dir"
+    git_directory="~/test_dir/e"
     repo = Repo(git_directory)
     assert not repo.bare
     
     #Untracked
     dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0 
     print("Dirty: %s" % dirty)
-    
-    b1 = repo.branches[0]
-    b1.tracking_branch()
-    commits_behind = repo.iter_commits('master..origin/master')
-    commits_ahead = repo.iter_commits('origin/master..master')
-    
-    nb = sum(1 for c in commits_behind)
-    na = sum(1 for c in commits_ahead)
-
-    print("nb = %s na = %s", nb, na)
-
-    s = gitCheckDirtyState("/home/ollbap/test_dir", True)
-    print("s = %s", s)
-    s = gitCheckDirtyState("/home/ollbap/test_dir", False)
-    print("s = %s", s)
+    gitCheckDirtyStateRecursive(['~/test_dir'], True)
+    gitCheckDirtyStateRecursive(['~/test_dir'], False)
     
 def gitCheckDirtyState(git_directory, online):
     """ Returns a boolean to indicate if the git repository in the path is 
@@ -49,7 +39,7 @@ def gitCheckDirtyState(git_directory, online):
         online: if also remotelly check if main branch is ahead or behind remote track. 
     """
     try:
-        repo = Repo(git_directory)
+        repo = Repo(os.path.expanduser(git_directory))
     
         dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0
         if dirty:
@@ -92,6 +82,20 @@ def gitCheckDirtyState(git_directory, online):
         return DirtyState.CLEAN
     except:
         return DirtyState.ERROR
+    
+def gitCheckDirtyStateRecursive(paths, online):
+    resultMap = {}
+    
+    for path in paths:
+        root_directory = os.path.expanduser(path)
+        
+        for root, dirnames, filenames in os.walk(root_directory):
+            for git_directory in fnmatch.filter(dirnames, '.git'):
+                state = gitCheckDirtyState(root, online)
+                #print("%s : %s" % (root, state))
+                resultMap[root] = state
+                
+    return resultMap
 
 if __name__ == "__main__":
     myGitTest()

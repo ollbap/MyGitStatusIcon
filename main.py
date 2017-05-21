@@ -11,8 +11,10 @@ import gtk
 import os
 from MyUtil import myPrint
 from MyGitUtil import gitCheckDirtyState
+from MyGitUtil import gitCheckDirtyStateRecursive
 from MyGitUtil import DirtyState
 from MyConfig import readConfig
+
 
 #http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
 
@@ -44,24 +46,20 @@ def check_now (val):
     global GIT_ONLINE_ROOT_PATHS
     global GIT_OFFLINE_ROOT_PATHS
     
-    maxStatus = DirtyState.CLEAN
     myPrint("Checking now")
     
-    for path in GIT_ONLINE_ROOT_PATHS:
-        git_directory = os.path.expanduser(path)
-        state = gitCheckDirtyState(git_directory, ONLINE_CHECK_MODE)
-        myPrint("%s : %s" % (git_directory, state))
-        if state.value > maxStatus.value:
-            maxStatus = state
+    m1 = gitCheckDirtyStateRecursive(GIT_ONLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
+    m2 = gitCheckDirtyStateRecursive(GIT_OFFLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
+    states = dict(m1.items() + m2.items())
 
-    for path in GIT_OFFLINE_ROOT_PATHS:
-        git_directory = os.path.expanduser(path)
-        state = gitCheckDirtyState(git_directory, False)
-        myPrint("%s : %s" % (git_directory, state))
-        if state.value > maxStatus.value:
-            maxStatus = state
-        
-    updateIconState(maxStatus)
+    maxState = DirtyState.CLEAN
+    for path, state in states.items():
+        if state != DirtyState.CLEAN:
+            myPrint("%15s | %s" % (state.name, path))
+        if state.value > maxState.value:
+            maxState = state
+
+    updateIconState(maxState)
 
 def updateIconState(state):
     global GTK_ICON
