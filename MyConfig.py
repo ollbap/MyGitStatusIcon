@@ -9,6 +9,7 @@ Created on Sun May 21 10:42:36 2017
 import ConfigParser
 import os
 import sys
+import json
 from MyUtil import myPrint
 
 def configTest():
@@ -16,7 +17,11 @@ def configTest():
     #writeConfig(cpath)
     config = _readConfig(cpath)
     printConfig(config)
-    config.getboolean('InitialState', 'auto_check')    
+    config.getboolean('InitialState', 'auto_check')
+    p1 = config.get('CheckPaths', 'online_root_paths')
+    p2 = config.get('CheckPaths', 'offline_root_paths')
+    type(p1)
+    type(p2)
     
 def _getConfigurationFilePath(): 
     envirVar = os.environ.get("MY_GIT_STATUS_ICON_CONF_DIR")
@@ -37,7 +42,7 @@ def _writeConfig(cpath):
     parser.set('InitialState','online_check', True)
 
     parser.add_section('CheckPaths')
-    parser.set('CheckPaths','online_root_paths',  ('~'))
+    parser.set('CheckPaths','online_root_paths',  """ ["~/"]  """)
     parser.set('CheckPaths','offline_root_paths', ()   )
 
     parser.write(cfgfile)
@@ -53,6 +58,10 @@ def _readConfig(cpath):
         
     parser = ConfigParser.ConfigParser()
     parser.readfp(source)
+    
+    parser.set('CheckPaths', 'online_root_paths', json.loads(parser.get('CheckPaths', 'online_root_paths')))
+    parser.set('CheckPaths', 'offline_root_paths', json.loads(parser.get('CheckPaths', 'offline_root_paths')))
+    
     return parser 
     
 def printConfig(config): 

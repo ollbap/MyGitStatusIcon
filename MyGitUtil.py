@@ -15,6 +15,7 @@ class DirtyState(Enum):
     LOCAL_DIRTY = 2
     REMOTE_AHEAD = 3
     REMOTE_BEHIND = 4
+    ERROR = 5
 
 def myGitTest():
     """ Test function """
@@ -47,48 +48,50 @@ def gitCheckDirtyState(git_directory, online):
         path: a path root of the repository
         online: if also remotelly check if main branch is ahead or behind remote track. 
     """
+    try:
+        repo = Repo(git_directory)
     
-    repo = Repo(git_directory)
-
-    dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0
-    if dirty:
-        return DirtyState.LOCAL_DIRTY
-
-    if not online:
-        return DirtyState.CLEAN
-
-    ###
-    #Online checks in branches
-    ###
-
-    if len(repo.branches) == 0:
-        #This is a repository with no commits.
-        return DirtyState.CLEAN
+        dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0
+        if dirty:
+            return DirtyState.LOCAL_DIRTY
     
-    if len(repo.branches) > 1:
-        raise Exception("Repositories with multiple branches are not supported")
+        if not online:
+            return DirtyState.CLEAN
     
-    b = repo.branches[0]
-
-    if b.tracking_branch() == None:
-        return DirtyState.CLEAN
+        ###
+        #Online checks in branches
+        ###
+    
+        if len(repo.branches) == 0:
+            #This is a repository with no commits.
+            return DirtyState.CLEAN
         
-    behindString = b.name + ".." + b.tracking_branch().name
-    aheadString = b.tracking_branch().name + ".." + b.name
+        if len(repo.branches) > 1:
+            raise Exception("Repositories with multiple branches are not supported")
+        
+        b = repo.branches[0]
     
-    commits_behind = repo.iter_commits(behindString)
-    commits_ahead = repo.iter_commits(aheadString)
-    
-    count_behind = sum(1 for c in commits_behind)
-    count_ahead = sum(1 for c in commits_ahead)
-    
-    if count_behind > 0:
-        return DirtyState.REMOTE_BEHIND
-    
-    if count_ahead > 0:
-            return DirtyState.REMOTE_AHEAD
-    
-    return DirtyState.CLEAN
+        if b.tracking_branch() == None:
+            return DirtyState.CLEAN
+            
+        behindString = b.name + ".." + b.tracking_branch().name
+        aheadString = b.tracking_branch().name + ".." + b.name
+        
+        commits_behind = repo.iter_commits(behindString)
+        commits_ahead = repo.iter_commits(aheadString)
+        
+        count_behind = sum(1 for c in commits_behind)
+        count_ahead = sum(1 for c in commits_ahead)
+        
+        if count_behind > 0:
+            return DirtyState.REMOTE_BEHIND
+        
+        if count_ahead > 0:
+                return DirtyState.REMOTE_AHEAD
+        
+        return DirtyState.CLEAN
+    except:
+        return DirtyState.ERROR
 
 if __name__ == "__main__":
     myGitTest()
