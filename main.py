@@ -44,7 +44,14 @@ ICON_OPTIONS={
         DirtyState.ERROR:         ICON_ERROR,
         }
 
-def check_now (val):
+def check_from_gui(val):
+    check_in_background()
+
+def check_in_background():
+    t = threading.Thread(target=check_now)
+    t.start()
+
+def check_now():
     global GIT_ONLINE_ROOT_PATHS
     global GIT_OFFLINE_ROOT_PATHS
     
@@ -103,7 +110,7 @@ def make_menu(event_button, event_time, data=None):
 
     check_item = gtk.MenuItem("Check")
     menu.append(check_item)
-    check_item.connect_object("activate", check_now, ())
+    check_item.connect_object("activate", check_from_gui, ())
     check_item.show()
     
     kill_item = gtk.MenuItem("Quit")
@@ -117,13 +124,13 @@ def on_right_click(data, event_button, event_time):
     make_menu(event_button, event_time)
 
 def on_left_click(event):
-    check_now(())
+    check_from_gui(())
     
 def autoCheckTimer():
     global AUTO_CHECK_FREQUENCY_SECONDS
     time.sleep(1)
     while True:
-        check_now(())
+        check_now()
         time.sleep(AUTO_CHECK_FREQUENCY_SECONDS)
 
 def initStatusIcon():
@@ -141,5 +148,4 @@ def initStatusIcon():
     
 if __name__ == '__main__':
     initStatusIcon()
-    #check_now(())
     gtk.main()
