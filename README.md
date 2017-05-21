@@ -13,12 +13,12 @@ Only tested for GTK linux on ARCH linux using python2.
 TODO
 
 ### Future work
-
- * Configuration files to specify what directories are checked, frequency,...
+ * Automatic check, frequency configuration.
  * Popup notification.
- * Log with issues during automatic checks. Special icon for errors.
- * Support multiple branches
  * Operations GUI to run simple operations: pull, push, open command line, open git gui...
+ * Log with issues during automatic checks. Special icon for errors.
+ * Configuration files to specify what directories are checked, frequency,...
+ * Support multiple branches
  * Commit GUI with add and revert options
  * Automatic pull and push according to some configurations somewhere
 

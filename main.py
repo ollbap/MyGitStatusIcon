@@ -10,18 +10,20 @@ import gobject
 import gtk
 import os
 from MyUtil import myPrint
-from MyGitUtil import gitCheckDirtyState
 from MyGitUtil import gitCheckDirtyStateRecursive
 from MyGitUtil import DirtyState
 from MyConfig import readConfig
-
+import threading
+import time
 
 #http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
 
 CONFIG = readConfig()
 
 AUTO_CHECK_MODE = CONFIG.getboolean('InitialState', 'auto_check')
+AUTO_CHECK_FREQUENCY_SECONDS = 60 * CONFIG.getint('InitialState', 'auto_check_frequency_minutes')
 ONLINE_CHECK_MODE = CONFIG.getboolean('InitialState', 'online_check')
+
 
 GIT_ONLINE_ROOT_PATHS=CONFIG.get('CheckPaths','online_root_paths')
 GIT_OFFLINE_ROOT_PATHS=CONFIG.get('CheckPaths','offline_root_paths')
@@ -46,6 +48,7 @@ def check_now (val):
     global GIT_ONLINE_ROOT_PATHS
     global GIT_OFFLINE_ROOT_PATHS
     
+    updateIconAsWorking()
     myPrint("Checking now")
     
     m1 = gitCheckDirtyStateRecursive(GIT_ONLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
@@ -63,13 +66,13 @@ def check_now (val):
 
 def updateIconState(state):
     global GTK_ICON
-    myPrint("Update state "+str(state))
+    myPrint("    Update state "+str(state))
     GTK_ICON.set_tooltip("State: "+str(state))
     GTK_ICON.set_from_file(ICON_OPTIONS[state])
 
 def updateIconAsWorking():
     global GTK_ICON
-    myPrint("Update state Working")
+    myPrint("    Update state Working")
     GTK_ICON.set_tooltip("Working")
     GTK_ICON.set_from_file(ICON_WORKING)
 
@@ -115,6 +118,13 @@ def on_right_click(data, event_button, event_time):
 
 def on_left_click(event):
     check_now(())
+    
+def autoCheckTimer():
+    global AUTO_CHECK_FREQUENCY_SECONDS
+    time.sleep(1)
+    while True:
+        check_now(())
+        time.sleep(AUTO_CHECK_FREQUENCY_SECONDS)
 
 def initStatusIcon():
     global ICON_WORKING
@@ -123,11 +133,13 @@ def initStatusIcon():
     os.chdir(os.path.dirname(__file__))
     #GTK_ICON = gtk.status_icon_new_from_file(ICON_WORKING)
     GTK_ICON = gtk.StatusIcon()
-    updateIconAsWorking()
     GTK_ICON.connect('popup-menu', on_right_click)
     GTK_ICON.connect('activate', on_left_click)
     
+    t = threading.Thread(target=autoCheckTimer)
+    t.start()
+    
 if __name__ == '__main__':
     initStatusIcon()
-    check_now(())
+    #check_now(())
     gtk.main()
