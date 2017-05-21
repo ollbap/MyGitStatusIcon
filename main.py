@@ -1,17 +1,28 @@
-#!/usr/bin/python2
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun May 20
+
+@author: ollbap
+"""
+
 import gobject
 import gtk
 import os
-import sys
+from MyUtil import myPrint
 from MyGitUtil import gitCheckDirtyState
 from MyGitUtil import DirtyState
+from MyConfig import readConfig
 
 #http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
 
-last_changed_time = 0
-autoMode = True
-onlineMode = True
-git_directory="/home/ollbap/test_dir"
+CONFIG = readConfig()
+
+AUTO_CHECK_MODE = CONFIG.getboolean('InitialState', 'auto_check')
+ONLINE_CHECK_MODE = CONFIG.getboolean('InitialState', 'online_check')
+
+GIT_ONLINE_ROOT_PATHS=CONFIG.get('CheckPaths','online_root_paths')
+GIT_OFFLINE_ROOT_PATHS=CONFIG.get('CheckPaths','offline_root_paths')
 
 GTK_ICON = None
 
@@ -26,13 +37,11 @@ ICON_OPTIONS={
         DirtyState.REMOTE_BEHIND: ICON_NOT_CLEAN,
         }
 
-def myPrint(s):
-    print(s)
-    sys.stdout.flush()
-
 def check_now (val):
+    global GIT_ONLINE_ROOT_PATHS
     myPrint("Check now")
-    state = gitCheckDirtyState(git_directory, onlineMode)
+    git_directory = os.path.expanduser(GIT_ONLINE_ROOT_PATHS[0])
+    state = gitCheckDirtyState(git_directory, ONLINE_CHECK_MODE)
     updateIconState(state)
 
 def updateIconState(state):
@@ -47,27 +56,27 @@ def updateIconAsWorking():
     GTK_ICON.set_tooltip("Working")
     GTK_ICON.set_from_file(ICON_WORKING)
 
-def change_auto_mode (auto_item):
-    global autoMode
-    autoMode = auto_item.active
-    myPrint("Auto mode:"+str(autoMode))
+def change_AUTO_CHECK_MODE (auto_item):
+    global AUTO_CHECK_MODE
+    AUTO_CHECK_MODE = auto_item.active
+    myPrint("Auto mode:"+str(AUTO_CHECK_MODE))
 
 def change_online_mode (item):
-    global onlineMode
-    onlineMode = item.active
-    myPrint("Online mode:"+str(onlineMode))
+    global ONLINE_CHECK_MODE
+    ONLINE_CHECK_MODE = item.active
+    myPrint("Online mode:"+str(ONLINE_CHECK_MODE))
 
 def make_menu(event_button, event_time, data=None):
     menu = gtk.Menu()
     
     auto_item = gtk.CheckMenuItem("Auto")
-    auto_item.set_active(autoMode)
+    auto_item.set_active(AUTO_CHECK_MODE)
     menu.append(auto_item)
-    auto_item.connect_object("activate", change_auto_mode, (auto_item))
+    auto_item.connect_object("activate", change_AUTO_CHECK_MODE, (auto_item))
     auto_item.show()
 
     online_item = gtk.CheckMenuItem("Online")
-    online_item.set_active(onlineMode)
+    online_item.set_active(ONLINE_CHECK_MODE)
     menu.append(online_item)
     online_item.connect_object("activate", change_online_mode, (online_item))
     online_item.show()

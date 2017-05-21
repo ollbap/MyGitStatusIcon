@@ -1,3 +1,11 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun May 20
+
+@author: ollbap
+"""
+
 from git import Repo
 #https://gitpython.readthedocs.io/en/stable/reference.html#module-git.repo.base
 from enum import Enum
@@ -8,7 +16,7 @@ class DirtyState(Enum):
     REMOTE_AHEAD = 3
     REMOTE_BEHIND = 4
 
-def test():
+def myGitTest():
     """ Test function """
     git_directory="/home/ollbap/test_dir"
     repo = Repo(git_directory)
@@ -16,18 +24,22 @@ def test():
     
     #Untracked
     dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0 
-    print(dirty)
+    print("Dirty: %s" % dirty)
     
     b1 = repo.branches[0]
     b1.tracking_branch()
     commits_behind = repo.iter_commits('master..origin/master')
     commits_ahead = repo.iter_commits('origin/master..master')
     
-    sum(1 for c in commits_behind)
-    sum(1 for c in commits_ahead)
+    nb = sum(1 for c in commits_behind)
+    na = sum(1 for c in commits_ahead)
 
-    gitCheckDirtyState("/home/ollbap/test_dir", True)
-    gitCheckDirtyState("/home/ollbap/test_dir", False)
+    print("nb = %s na = %s", nb, na)
+
+    s = gitCheckDirtyState("/home/ollbap/test_dir", True)
+    print("s = %s", s)
+    s = gitCheckDirtyState("/home/ollbap/test_dir", False)
+    print("s = %s", s)
     
 def gitCheckDirtyState(git_directory, online):
     """ Returns a boolean to indicate if the git repository in the path is 
@@ -77,3 +89,6 @@ def gitCheckDirtyState(git_directory, online):
             return DirtyState.REMOTE_AHEAD
     
     return DirtyState.CLEAN
+
+if __name__ == "__main__":
+    myGitTest()
