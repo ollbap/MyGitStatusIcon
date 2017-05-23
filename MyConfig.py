@@ -44,7 +44,7 @@ def _writeConfig(cpath):
 
     parser.add_section('CheckPaths')
     parser.set('CheckPaths','online_root_paths',  """ ["~/"]  """)
-    parser.set('CheckPaths','offline_root_paths', ()   )
+    parser.set('CheckPaths','offline_root_paths', """     []  """)
 
     parser.write(cfgfile)
     cfgfile.close()

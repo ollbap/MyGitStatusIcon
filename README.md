@@ -3,6 +3,11 @@ This is a simple project that uses gitpython and gkt python api to create a stat
 
 The idea is to have something in between git and dropbox. You get a cloud storage using git as a low level storage with concurrent version control and also have some automatic notifications to manually control your files and conflicts.
 
+### Install dependences
+```
+pip2 install gitpython
+```
+
 ### How to execute
 Run the `main.py` file in python using `./main.py` or any other manner. 
 
