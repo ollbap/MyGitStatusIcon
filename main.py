@@ -20,8 +20,16 @@ import time
 
 CONFIG = readConfig()
 
+DEBUG_MODE = False
+
+AUTO_CHECK_TIMER_THREAD = None
+
 AUTO_CHECK_MODE = CONFIG.getboolean('InitialState', 'auto_check')
 AUTO_CHECK_FREQUENCY_SECONDS = 60 * CONFIG.getint('InitialState', 'auto_check_frequency_minutes')
+
+if DEBUG_MODE:
+    AUTO_CHECK_FREQUENCY_SECONDS = AUTO_CHECK_FREQUENCY_SECONDS / 60
+
 ONLINE_CHECK_MODE = CONFIG.getboolean('InitialState', 'online_check')
 
 
@@ -49,6 +57,7 @@ def check_from_gui(val):
 
 def check_in_background():
     t = threading.Thread(target=check_now)
+    t.daemon = True
     t.start()
 
 def check_now():
@@ -93,6 +102,11 @@ def change_online_mode (item):
     ONLINE_CHECK_MODE = item.active
     myPrint("Online mode:"+str(ONLINE_CHECK_MODE))
 
+def quit_callback(ignored):
+    global AUTO_CHECK_TIMER_THREAD
+    myPrint("Quitting")
+    gtk.main_quit()
+
 def make_menu(event_button, event_time, data=None):
     menu = gtk.Menu()
     
@@ -115,7 +129,7 @@ def make_menu(event_button, event_time, data=None):
     
     kill_item = gtk.MenuItem("Quit")
     menu.append(kill_item)
-    kill_item.connect_object("activate", gtk.main_quit, ())
+    kill_item.connect_object("activate", quit_callback, ())
     kill_item.show()
     
     menu.popup(None, None, None, event_button, event_time)
@@ -128,23 +142,30 @@ def on_left_click(event):
     
 def autoCheckTimer():
     global AUTO_CHECK_FREQUENCY_SECONDS
+    global AUTO_CHECK_MODE
+
     time.sleep(1)
     while True:
-        check_now()
+        if AUTO_CHECK_MODE:
+            check_now()
         time.sleep(AUTO_CHECK_FREQUENCY_SECONDS)
 
 def initStatusIcon():
     global ICON_WORKING
     global GTK_ICON
+    global AUTO_CHECK_TIMER_THREAD
+
     gobject.threads_init()
     os.chdir(os.path.dirname(__file__))
-    #GTK_ICON = gtk.status_icon_new_from_file(ICON_WORKING)
+
     GTK_ICON = gtk.StatusIcon()
     GTK_ICON.connect('popup-menu', on_right_click)
     GTK_ICON.connect('activate', on_left_click)
     
-    t = threading.Thread(target=autoCheckTimer)
-    t.start()
+    AUTO_CHECK_TIMER_THREAD = threading.Thread(target=autoCheckTimer)
+    #So application does not hang
+    AUTO_CHECK_TIMER_THREAD.daemon = True
+    AUTO_CHECK_TIMER_THREAD.start()
     
 if __name__ == '__main__':
     initStatusIcon()
