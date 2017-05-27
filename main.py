@@ -6,6 +6,7 @@ Created on Sun May 20
 @author: ollbap
 """
 
+import traceback
 import gobject
 import gtk
 import os
@@ -13,6 +14,7 @@ from MyUtil import myPrint
 from MyGitUtil import gitCheckDirtyStateRecursive
 from MyGitUtil import DirtyState
 from MyConfig import readConfig
+from Gui import myGuiMessage
 import threading
 import time
 from Gui import showDirtyDirectories
@@ -65,28 +67,32 @@ def check_in_background():
     t.start()
 
 def check_now():
-    global GIT_ONLINE_ROOT_PATHS
-    global GIT_OFFLINE_ROOT_PATHS
-    global LAST_CHECK_RESULT
-    global LAST_CHECK_STATUS
+    try:
+        global GIT_ONLINE_ROOT_PATHS
+        global GIT_OFFLINE_ROOT_PATHS
+        global LAST_CHECK_RESULT
+        global LAST_CHECK_STATUS
+        
+        updateIconAsWorking()
+        myPrint("Checking now")
+        
+        m1 = gitCheckDirtyStateRecursive(GIT_ONLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
+        m2 = gitCheckDirtyStateRecursive(GIT_OFFLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
+        states = dict(m1.items() + m2.items())
     
-    updateIconAsWorking()
-    myPrint("Checking now")
+        maxState = DirtyState.CLEAN
+        for path, state in states.items():
+            if state != DirtyState.CLEAN:
+                myPrint("%15s | %s" % (state.name, path))
+            if state.value > maxState.value:
+                maxState = state
     
-    m1 = gitCheckDirtyStateRecursive(GIT_ONLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
-    m2 = gitCheckDirtyStateRecursive(GIT_OFFLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
-    states = dict(m1.items() + m2.items())
-
-    maxState = DirtyState.CLEAN
-    for path, state in states.items():
-        if state != DirtyState.CLEAN:
-            myPrint("%15s | %s" % (state.name, path))
-        if state.value > maxState.value:
-            maxState = state
-
-    updateIconState(maxState)
-    LAST_CHECK_RESULT = states
-    LAST_CHECK_STATUS = maxState
+        updateIconState(maxState)
+        LAST_CHECK_RESULT = states
+        LAST_CHECK_STATUS = maxState
+    except:
+        traceback.print_exc()
+        myGuiMessage("Check failed", traceback.format_exc())
     
 def showLastDirtyDirectories():
     showDirtyDirectories(LAST_CHECK_RESULT)
