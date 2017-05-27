@@ -10,7 +10,7 @@
    version="1.1"
    viewBox="0 0 165.332992553711 165.332992553711"
    id="svg28"
-   sodipodi:docname="f-top_256.svg"
+   sodipodi:docname="f-my_dot_256.svg"
    inkscape:version="0.92.1 r">
   <metadata
      id="metadata32">
@@ -37,8 +37,8 @@
      id="namedview30"
      showgrid="false"
      inkscape:zoom="1.4274223"
-     inkscape:cx="-50.090292"
-     inkscape:cy="82.666496"
+     inkscape:cx="129.73261"
+     inkscape:cy="79.864242"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -95,14 +95,18 @@
      style="fill:#ff0000"
      id="path18"
      d="m 0,82.6667 c 0,45.6563 37.0107,82.6663 82.668,82.6663 v 0 c 45.657,0 82.665,-37.01 82.665,-82.6663 v 0 C 165.333,37.0107 128.325,0 82.668,0 V 0 C 37.0107,0 0,37.0107 0,82.6667 Z" />
-  <path
-     inkscape:connector-curvature="0"
-     style="fill:url(#def1)"
-     id="path20"
-     d="m 133.283,34.5333 c 0,16.0107 -23.072,28.992 -51.5323,28.992 -28.4587,0 -51.528,-12.9813 -51.528,-28.992 0,-16.0106 23.0693,-28.99198 51.528,-28.99198 28.4603,0 51.5323,12.98138 51.5323,28.99198 z" />
-  <path
-     style="fill:#ffffff"
-     inkscape:connector-curvature="0"
-     id="path24"
-     d="m 43.7005,74.9921 38.988,-38.992 38.9945,38.992 V 100.711 L 92.0245,71.0535 V 129.333 H 73.1459 V 71.2588 L 43.6499,100.76 Z" />
+  <g
+     id="g4509"
+     transform="translate(0.621441)">
+    <path
+       d="m 120.3409,41.7006 38.992,38.988 -38.992,38.9945 H 94.622 L 124.2795,90.0246 H 66 V 71.146 h 58.0742 L 94.573,41.65 Z"
+       id="path24"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff" />
+    <path
+       d="m 43.749218,41.700598 -38.992,38.988003 38.992,38.994499 H 69.468116 L 39.810618,90.0246 H 98.09012 V 71.145999 H 40.015918 l 29.501198,-29.496 z"
+       id="path24-7"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff" />
+  </g>
 </svg>

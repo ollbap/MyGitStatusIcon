@@ -46,10 +46,11 @@ ICON_ERROR="icons/f-cross_256.svg"
 ICON_WORKING="icons/f-server_128.svg"
 ICON_UPLOAD="icons/f-top_256.svg"
 ICON_DOWNLOAD="icons/f-bottom_256.svg"
+ICON_LOCAL_CHANGES="icons/f-my_left_right_256.svg"
 
 ICON_OPTIONS={
         DirtyState.CLEAN:         ICON_CLEAN,
-        DirtyState.LOCAL_DIRTY:   ICON_UPLOAD,
+        DirtyState.LOCAL_DIRTY:   ICON_LOCAL_CHANGES,
         DirtyState.REMOTE_AHEAD:  ICON_UPLOAD,
         DirtyState.REMOTE_BEHIND: ICON_DOWNLOAD,
         DirtyState.ERROR:         ICON_ERROR,
