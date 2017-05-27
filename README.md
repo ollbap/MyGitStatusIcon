@@ -29,7 +29,8 @@ File example:
 [InitialState]
 auto_check = True
 online_check = True
-auto_check_frequency_minutes = 1
+auto_check_frequency_minutes = 10
+force_auto_show_check_dialog_times = 6
 
 [CheckPaths]
 online_root_paths = ["~/Dropbox/data/", "~/scripts/"]
