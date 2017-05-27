@@ -41,6 +41,8 @@ def _writeConfig(cpath):
     parser.set('InitialState','auto_check', True)
     parser.set('InitialState','online_check', True)
     parser.set('InitialState','auto_check_frequency_minutes', 10)
+    parser.set('InitialState','force_auto_show_check_dialog_times', 6)
+
 
     parser.add_section('CheckPaths')
     parser.set('CheckPaths','online_root_paths',  """ ["~/"]  """)

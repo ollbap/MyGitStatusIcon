@@ -19,11 +19,13 @@ import threading
 import time
 from Gui import showDirtyDirectories
 
+
 #http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
 
 CONFIG = readConfig()
 
 DEBUG_MODE = False
+
 
 AUTO_CHECK_TIMER_THREAD = None
 LAST_CHECK_RESULT = None
@@ -31,6 +33,8 @@ LAST_CHECK_STATUS = None
 
 AUTO_CHECK_MODE = CONFIG.getboolean('InitialState', 'auto_check')
 AUTO_CHECK_FREQUENCY_SECONDS = 60 * CONFIG.getint('InitialState', 'auto_check_frequency_minutes')
+FORCE_AUTO_SHOW_CHECK_DIALOG_TIMES = CONFIG.getint('InitialState', 'force_auto_show_check_dialog_times')
+
 
 if DEBUG_MODE:
     AUTO_CHECK_FREQUENCY_SECONDS = AUTO_CHECK_FREQUENCY_SECONDS / 60
@@ -181,9 +185,18 @@ def autoCheckTimer():
     global AUTO_CHECK_MODE
 
     time.sleep(1)
+    dirtyTimesToForce = 0
     while True:
         if AUTO_CHECK_MODE:
             check_now()
+            if LAST_CHECK_STATUS != DirtyState.CLEAN:
+                dirtyTimesToForce += 1
+            else:
+                dirtyTimesToForce = 0
+                
+            if dirtyTimesToForce >= FORCE_AUTO_SHOW_CHECK_DIALOG_TIMES:
+                showLastDirtyDirectories_FromGuiBackground(())
+                dirtyTimesToForce = 0
         time.sleep(AUTO_CHECK_FREQUENCY_SECONDS)
 
 def initStatusIcon():
