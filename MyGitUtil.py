@@ -32,6 +32,26 @@ def myGitTest():
     gitCheckDirtyStateRecursive(['~/test_dir'], True)
     gitCheckDirtyStateRecursive(['~/test_dir'], False)
     
+def gitPush(git_directory):
+    print("Pushing: "+git_directory)
+    repo = Repo(os.path.expanduser(git_directory))
+    
+    if len(repo.remotes) > 1:
+        raise Exception("Repositories with multiple remotes are not supported")
+    
+    r1 = repo.remotes[0]
+    r1.push()
+    
+def gitPull(git_directory):
+    print("Pulling: "+git_directory)
+    repo = Repo(os.path.expanduser(git_directory))
+    
+    if len(repo.remotes) > 1:
+        raise Exception("Repositories with multiple remotes are not supported")
+    
+    r1 = repo.remotes[0]
+    r1.pull()
+    
 def gitCheckDirtyState(git_directory, online):
     """ Returns a boolean to indicate if the git repository in the path is 
     dirty. 
