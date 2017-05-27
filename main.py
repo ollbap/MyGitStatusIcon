@@ -15,6 +15,7 @@ from MyGitUtil import DirtyState
 from MyConfig import readConfig
 import threading
 import time
+from Gui import showDirtyDirectories
 
 #http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
 
@@ -23,6 +24,8 @@ CONFIG = readConfig()
 DEBUG_MODE = False
 
 AUTO_CHECK_TIMER_THREAD = None
+LAST_CHECK_RESULT = None
+LAST_CHECK_STATUS = None 
 
 AUTO_CHECK_MODE = CONFIG.getboolean('InitialState', 'auto_check')
 AUTO_CHECK_FREQUENCY_SECONDS = 60 * CONFIG.getint('InitialState', 'auto_check_frequency_minutes')
@@ -63,6 +66,8 @@ def check_in_background():
 def check_now():
     global GIT_ONLINE_ROOT_PATHS
     global GIT_OFFLINE_ROOT_PATHS
+    global LAST_CHECK_RESULT
+    global LAST_CHECK_STATUS
     
     updateIconAsWorking()
     myPrint("Checking now")
@@ -79,6 +84,12 @@ def check_now():
             maxState = state
 
     updateIconState(maxState)
+    LAST_CHECK_RESULT = states
+    LAST_CHECK_STATUS = maxState
+    
+def showLastDirtyDirectories_FromGui(ignored):
+    global LAST_CHECK_RESULT
+    showDirtyDirectories(LAST_CHECK_RESULT)
 
 def updateIconState(state):
     global GTK_ICON
@@ -104,12 +115,25 @@ def change_online_mode (item):
 
 def quit_callback(ignored):
     global AUTO_CHECK_TIMER_THREAD
+    global GTK_ICON
+    
+    GTK_ICON.set_visible(False)
     myPrint("Quitting")
     gtk.main_quit()
 
 def make_menu(event_button, event_time, data=None):
     menu = gtk.Menu()
     
+    show_dirty_item = gtk.MenuItem("Show Dirty")
+    menu.append(show_dirty_item)
+    show_dirty_item.connect_object("activate", showLastDirtyDirectories_FromGui, ())
+    show_dirty_item.show()
+    
+    check_item = gtk.MenuItem("Check")
+    menu.append(check_item)
+    check_item.connect_object("activate", check_from_gui, ())
+    check_item.show()
+
     auto_item = gtk.CheckMenuItem("Auto")
     auto_item.set_active(AUTO_CHECK_MODE)
     menu.append(auto_item)
@@ -121,11 +145,6 @@ def make_menu(event_button, event_time, data=None):
     menu.append(online_item)
     online_item.connect_object("activate", change_online_mode, (online_item))
     online_item.show()
-
-    check_item = gtk.MenuItem("Check")
-    menu.append(check_item)
-    check_item.connect_object("activate", check_from_gui, ())
-    check_item.show()
     
     kill_item = gtk.MenuItem("Quit")
     menu.append(kill_item)
@@ -138,7 +157,12 @@ def on_right_click(data, event_button, event_time):
     make_menu(event_button, event_time)
 
 def on_left_click(event):
-    check_from_gui(())
+    global LAST_CHECK_STATUS
+    if LAST_CHECK_STATUS == DirtyState.CLEAN:
+        check_from_gui(())
+    else:
+        showLastDirtyDirectories_FromGui(())
+        check_from_gui(())
     
 def autoCheckTimer():
     global AUTO_CHECK_FREQUENCY_SECONDS
