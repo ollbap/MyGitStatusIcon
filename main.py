@@ -88,14 +88,20 @@ def check_now():
     LAST_CHECK_RESULT = states
     LAST_CHECK_STATUS = maxState
     
-def showLastDirtyDirectories_FromGui(ignored):
-    global LAST_CHECK_RESULT
+def showLastDirtyDirectories():
     showDirtyDirectories(LAST_CHECK_RESULT)
+    check_now()
+    
+def showLastDirtyDirectories_FromGuiBackground(ignored):
+    global LAST_CHECK_RESULT
+    t = threading.Thread(target=showLastDirtyDirectories)
+    t.daemon = True
+    t.start()
 
 def updateIconState(state):
     global GTK_ICON
     myPrint("    Update state "+str(state))
-    GTK_ICON.set_tooltip("State: "+str(state))
+    GTK_ICON.set_tooltip("State: "+str(state.name))
     GTK_ICON.set_from_file(ICON_OPTIONS[state])
 
 def updateIconAsWorking():
@@ -127,7 +133,7 @@ def make_menu(event_button, event_time, data=None):
     
     show_dirty_item = gtk.MenuItem("Show Dirty")
     menu.append(show_dirty_item)
-    show_dirty_item.connect_object("activate", showLastDirtyDirectories_FromGui, ())
+    show_dirty_item.connect_object("activate", showLastDirtyDirectories_FromGuiBackground, ())
     show_dirty_item.show()
     
     check_item = gtk.MenuItem("Check")
@@ -162,8 +168,7 @@ def on_left_click(event):
     if LAST_CHECK_STATUS == DirtyState.CLEAN:
         check_from_gui(())
     else:
-        showLastDirtyDirectories_FromGui(())
-        check_from_gui(())
+        showLastDirtyDirectories_FromGuiBackground(())
     
 def autoCheckTimer():
     global AUTO_CHECK_FREQUENCY_SECONDS
