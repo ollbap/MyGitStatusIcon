@@ -7,6 +7,10 @@ Created on Sat May 27 18:17:24 2017
 """
 
 from Tkinter import Label
+from Tkinter import X
+from Tkinter import LEFT
+
+
 import Tkinter
 from subprocess import call
 
@@ -19,16 +23,20 @@ def handleGitDir(path):
     
 def showDirtyDirectories(dirDictionary):
     rootWindow = Tkinter.Tk()
-
-    title = Label(rootWindow, text="Git Directories")
-    title.pack()
+    rootWindow.wm_title("Git dirty directories")
+    #title = Label(rootWindow, text="Git Directories")
+    #title.pack()
     
+    rowIndex = 0
     for path, status in dirDictionary.iteritems():
         if status != DirtyState.CLEAN:
             button = Tkinter.Button(rootWindow, 
-                                    text=str(path)+":"+str(status), 
+                                    width=15,
+                                    text = status.name, 
                                     command=lambda path=path: handleGitDir(path))
-            button.pack()
+            button.grid(row=rowIndex, column=0)
+            Label(text=path, justify=LEFT, anchor="e").grid(row=rowIndex,column=1, sticky="W")
+            rowIndex += 1
 
     rootWindow.mainloop()
 
@@ -36,9 +44,9 @@ def guiTest():
     dirDictionary = {}
     dirDictionary["/home/test/aaa/ccc"] = DirtyState.LOCAL_DIRTY
     dirDictionary["/home/test/ddd/eee"] = DirtyState.LOCAL_DIRTY
-    dirDictionary["/home/test/ddd/ddd"] = DirtyState.REMOTE_AHEAD
+    dirDictionary["/home/test/ddd/dddasdasd/asdds"] = DirtyState.REMOTE_AHEAD
     dirDictionary["/home/test/ddd/cc"] = DirtyState.REMOTE_BEHIND
-    dirDictionary["/home/test/ddd/jj"] = DirtyState.CLEAN
+    dirDictionary["/home/test/"] = DirtyState.CLEAN
     showDirtyDirectories(dirDictionary)
     
 if __name__ == "__main__":
