@@ -184,7 +184,7 @@ def autoCheckTimer():
     global AUTO_CHECK_FREQUENCY_SECONDS
     global AUTO_CHECK_MODE
 
-    time.sleep(1)
+    time.sleep(10)
     dirtyTimesToForce = 0
     while True:
         if AUTO_CHECK_MODE:
@@ -207,10 +207,10 @@ def initStatusIcon():
     gobject.threads_init()
     os.chdir(os.path.dirname(__file__))
 
-    GTK_ICON = gtk.StatusIcon()
+    GTK_ICON = gtk.status_icon_new_from_file(ICON_WORKING)
     GTK_ICON.connect('popup-menu', on_right_click)
     GTK_ICON.connect('activate', on_left_click)
-    
+
     AUTO_CHECK_TIMER_THREAD = threading.Thread(target=autoCheckTimer)
     #So application does not hang
     AUTO_CHECK_TIMER_THREAD.daemon = True
