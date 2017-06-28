@@ -6,7 +6,8 @@ The idea is to have something midway between git and dropbox. You get a cloud st
 
 ### Install dependencies
 ```
-pip2 install gitpython
+pip2 install gitpython (--user)
+sudo pacman -S community/python2-enum34
 ```
 
 ### How to execute
