@@ -58,6 +58,7 @@ def gitCheckDirtyState(git_directory, online):
         path: a path root of the repository
         online: if also remotelly check if main branch is ahead or behind remote track. 
     """
+    print("Checking state of: "+git_directory)
     repo = Repo(os.path.expanduser(git_directory))
 
     dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0
