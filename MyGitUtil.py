@@ -37,7 +37,7 @@ def gitPush(git_directory):
     repo = Repo(os.path.expanduser(git_directory))
     
     if len(repo.remotes) > 1:
-        raise Exception("Repositories with multiple remotes are not supported")
+        raise Exception("Repositories with multiple remotes are not supported: "+git_directory)
     
     r1 = repo.remotes[0]
     r1.push()
@@ -47,7 +47,7 @@ def gitPull(git_directory):
     repo = Repo(os.path.expanduser(git_directory))
     
     if len(repo.remotes) > 1:
-        raise Exception("Repositories with multiple remotes are not supported")
+        raise Exception("Repositories with multiple remotes are not supported: "+git_directory)
     
     r1 = repo.remotes[0]
     r1.pull()
@@ -76,7 +76,7 @@ def gitCheckDirtyState(git_directory, online):
         return DirtyState.CLEAN
     
     if len(repo.branches) > 1:
-        raise Exception("Repositories with multiple branches are not supported")
+        raise Exception("Repositories with multiple branches are not supported: "+git_directory)
     
     b = repo.branches[0]
 
