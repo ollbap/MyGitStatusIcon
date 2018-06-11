@@ -7,7 +7,16 @@ The idea is to have something midway between git and dropbox. You get a cloud st
 ### Install dependencies
 ```
 pip2 install gitpython (--user)
+```
+
+Arch
+```
 sudo pacman -S community/python2-enum34
+```
+
+Ubuntu 18.04
+```
+apt install python-tk
 ```
 
 ### How to execute
