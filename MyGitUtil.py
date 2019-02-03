@@ -58,56 +58,62 @@ def gitCheckDirtyState(git_directory, online):
         path: a path root of the repository
         online: if also remotelly check if main branch is ahead or behind remote track. 
     """
-    print("Checking state of: "+git_directory)
+    print(" - "+git_directory)
     repo = Repo(os.path.expanduser(git_directory))
 
+    #First, check if it contains local changes, this is only tests for the current branch.
     dirty = repo.is_dirty() or repo.untracked_files.__len__() > 0
     if dirty:
         return DirtyState.LOCAL_DIRTY
 
+    ###
+    #Online checks in branches but only when online mode is enabled.
+    ###
     if not online:
         return DirtyState.CLEAN
-
-    ###
-    #Online checks in branches
-    ###
 
     if len(repo.branches) == 0:
         #This is a repository with no commits.
         return DirtyState.CLEAN
-    
-    if len(repo.branches) > 1:
-        raise Exception("Repositories with multiple branches are not supported: "+git_directory)
-    
-    b = repo.branches[0]
 
-    if b.tracking_branch() == None:
-        return DirtyState.CLEAN
-        
-    behindString = b.name + ".." + b.tracking_branch().name
-    aheadString = b.tracking_branch().name + ".." + b.name
-    
-    commits_behind = repo.iter_commits(behindString)
-    commits_ahead = repo.iter_commits(aheadString)
-    
-    count_behind = sum(1 for c in commits_behind)
-    count_ahead = sum(1 for c in commits_ahead)
-    
-    if count_behind > 0:
-        return DirtyState.REMOTE_BEHIND
-    
-    if count_ahead > 0:
-            return DirtyState.REMOTE_AHEAD
-    
-    return DirtyState.CLEAN
-    
+    #For each branch ckeck if it is ahead or behind
+    #Return first not up to date status.
+    foundStatus = DirtyState.CLEAN
+
+    for branch in repo.branches:
+        if branch.tracking_branch() != None:
+            behindString = branch.name + ".." + branch.tracking_branch().name
+            aheadString = branch.tracking_branch().name + ".." + branch.name
+
+            commits_behind = repo.iter_commits(behindString)
+            commits_ahead = repo.iter_commits(aheadString)
+
+            count_behind = sum(1 for c in commits_behind)
+            count_ahead = sum(1 for c in commits_ahead)
+
+            if count_behind > 0:
+                print("    * " + branch.name + " -> REMOTE_BEHIND")
+                if foundStatus == DirtyState.CLEAN:
+                    foundStatus = DirtyState.REMOTE_BEHIND
+            elif count_ahead > 0:
+                print("    * " + branch.name + " -> REMOTE_AHEAD")
+                if foundStatus == DirtyState.CLEAN:
+                    foundStatus = DirtyState.REMOTE_AHEAD
+            else:
+                print("    * " + branch.name+" -> CLEAN")
+
+    return foundStatus
+
+
 def gitCheckDirtyStateRecursive(paths, online):
     resultMap = {}
     
     for path in paths:
         root_directory = os.path.expanduser(path)
-        
+
+        #Search each subdirectory at root_directory
         for root, dirnames, filenames in os.walk(root_directory):
+            #Just process directories that match .git pattern
             for git_directory in fnmatch.filter(dirnames, '.git'):
                 state = gitCheckDirtyState(root, online)
                 #print("%s : %s" % (root, state))
