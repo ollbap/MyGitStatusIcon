@@ -138,8 +138,10 @@ def change_online_mode(item):
 
 def quit_callback(ignored):
     global AUTO_CHECK_TIMER_THREAD
+    global ICON
+
     myPrint("Quitting")
-    # TODO QUIT
+    ICON.stop()
 
 
 def showUpdatesOrCheck(event):
@@ -182,8 +184,8 @@ def initStatusIcon():
     AUTO_CHECK_TIMER_THREAD.daemon = True
     AUTO_CHECK_TIMER_THREAD.start()
 
-    menu = (
-        item("Show updates", showUpdatesOrCheck),
+    menu = pystray.Menu(
+        item("Show updates", showUpdatesOrCheck, default=True),
         item("Check", check_from_gui),
         item("Quit", quit_callback)
     )
