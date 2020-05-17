@@ -66,9 +66,9 @@ def gitCheckDirtyState(git_directory, online):
     print(" - " + git_directory)
     repo = Repo(os.path.expanduser(git_directory))
 
-    # First, check if it contains local changes, this is only tests for the current branch.
-    # Is dirty checks changes from files that are in index and untracked_files checks files that are not currenly in index.
-    # This is slow but I can't find a work around.
+    # First, check if it contains local changes, this is only tests for the current branch. Is dirty checks changes
+    # from files that are in index and untracked_files checks files that are not currently in index. This is slow but
+    # I can't find a work around.
     dirty = repo.is_dirty() or len(repo.untracked_files) > 0
     if dirty:
         return DirtyState.LOCAL_DIRTY
