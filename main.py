@@ -19,13 +19,11 @@ import threading
 import time
 from Gui import showDirtyDirectories
 
-
-#http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
+# http://www.pygtk.org/pygtk2reference/class-gtkstatusicon.html
 
 CONFIG = readConfig()
 
 DEBUG_MODE = False
-
 
 AUTO_CHECK_TIMER_THREAD = None
 LAST_CHECK_RESULT = None
@@ -35,40 +33,41 @@ AUTO_CHECK_MODE = CONFIG.getboolean('InitialState', 'auto_check')
 AUTO_CHECK_FREQUENCY_SECONDS = 60 * CONFIG.getint('InitialState', 'auto_check_frequency_minutes')
 FORCE_AUTO_SHOW_CHECK_DIALOG_TIMES = CONFIG.getint('InitialState', 'force_auto_show_check_dialog_times')
 
-
 if DEBUG_MODE:
     AUTO_CHECK_FREQUENCY_SECONDS = AUTO_CHECK_FREQUENCY_SECONDS / 60
 
 ONLINE_CHECK_MODE = CONFIG.getboolean('InitialState', 'online_check')
 
-
-GIT_ONLINE_ROOT_PATHS=CONFIG.get('CheckPaths','online_root_paths')
-GIT_OFFLINE_ROOT_PATHS=CONFIG.get('CheckPaths','offline_root_paths')
+GIT_ONLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'online_root_paths')
+GIT_OFFLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'offline_root_paths')
 
 GTK_ICON = None
 
-ICON_CLEAN="icons/f-check_256.svg"
-ICON_ERROR="icons/f-cross_256.svg"
-ICON_WORKING="icons/f-server_128.svg"
-ICON_UPLOAD="icons/f-top_256.svg"
-ICON_DOWNLOAD="icons/f-bottom_256.svg"
-ICON_LOCAL_CHANGES="icons/f-my_left_right_256.svg"
+ICON_CLEAN = "icons/f-check_256.svg"
+ICON_ERROR = "icons/f-cross_256.svg"
+ICON_WORKING = "icons/f-server_128.svg"
+ICON_UPLOAD = "icons/f-top_256.svg"
+ICON_DOWNLOAD = "icons/f-bottom_256.svg"
+ICON_LOCAL_CHANGES = "icons/f-my_left_right_256.svg"
 
-ICON_OPTIONS={
-        DirtyState.CLEAN:         ICON_CLEAN,
-        DirtyState.LOCAL_DIRTY:   ICON_LOCAL_CHANGES,
-        DirtyState.REMOTE_AHEAD:  ICON_UPLOAD,
-        DirtyState.REMOTE_BEHIND: ICON_DOWNLOAD,
-        DirtyState.ERROR:         ICON_ERROR,
-        }
+ICON_OPTIONS = {
+    DirtyState.CLEAN: ICON_CLEAN,
+    DirtyState.LOCAL_DIRTY: ICON_LOCAL_CHANGES,
+    DirtyState.REMOTE_AHEAD: ICON_UPLOAD,
+    DirtyState.REMOTE_BEHIND: ICON_DOWNLOAD,
+    DirtyState.ERROR: ICON_ERROR,
+}
+
 
 def check_from_gui(val):
     check_in_background()
+
 
 def check_in_background():
     t = threading.Thread(target=check_now)
     t.daemon = True
     t.start()
+
 
 def check_now():
     try:
@@ -98,9 +97,11 @@ def check_now():
         traceback.print_exc()
         myGuiMessage("Check failed", traceback.format_exc())
 
+
 def showLastDirtyDirectories():
     showDirtyDirectories(LAST_CHECK_RESULT)
     check_now()
+
 
 def showLastDirtyDirectories_FromGuiBackground(ignored):
     global LAST_CHECK_RESULT
@@ -108,11 +109,13 @@ def showLastDirtyDirectories_FromGuiBackground(ignored):
     t.daemon = True
     t.start()
 
+
 def updateIconState(state):
     global GTK_ICON
-    myPrint("    Update state "+str(state))
-    GTK_ICON.set_tooltip("State: "+str(state.name))
+    myPrint("    Update state " + str(state))
+    GTK_ICON.set_tooltip("State: " + str(state.name))
     GTK_ICON.set_from_file(ICON_OPTIONS[state])
+
 
 def updateIconAsWorking():
     global GTK_ICON
@@ -120,15 +123,18 @@ def updateIconAsWorking():
     GTK_ICON.set_tooltip("Working")
     GTK_ICON.set_from_file(ICON_WORKING)
 
-def change_AUTO_CHECK_MODE (auto_item):
+
+def change_AUTO_CHECK_MODE(auto_item):
     global AUTO_CHECK_MODE
     AUTO_CHECK_MODE = auto_item.active
-    myPrint("Auto mode:"+str(AUTO_CHECK_MODE))
+    myPrint("Auto mode:" + str(AUTO_CHECK_MODE))
 
-def change_online_mode (item):
+
+def change_online_mode(item):
     global ONLINE_CHECK_MODE
     ONLINE_CHECK_MODE = item.active
-    myPrint("Online mode:"+str(ONLINE_CHECK_MODE))
+    myPrint("Online mode:" + str(ONLINE_CHECK_MODE))
+
 
 def quit_callback(ignored):
     global AUTO_CHECK_TIMER_THREAD
@@ -137,6 +143,7 @@ def quit_callback(ignored):
     GTK_ICON.set_visible(False)
     myPrint("Quitting")
     gtk.main_quit()
+
 
 def make_menu(event_button, event_time, data=None):
     menu = gtk.Menu()
@@ -170,8 +177,10 @@ def make_menu(event_button, event_time, data=None):
 
     menu.popup(None, None, None, event_button, event_time)
 
+
 def on_right_click(data, event_button, event_time):
     make_menu(event_button, event_time)
+
 
 def on_left_click(event):
     global LAST_CHECK_STATUS
@@ -179,6 +188,7 @@ def on_left_click(event):
         check_from_gui(())
     else:
         showLastDirtyDirectories_FromGuiBackground(())
+
 
 def autoCheckTimer():
     global AUTO_CHECK_FREQUENCY_SECONDS
@@ -199,6 +209,7 @@ def autoCheckTimer():
                 dirtyTimesToForce = 0
         time.sleep(AUTO_CHECK_FREQUENCY_SECONDS)
 
+
 def initStatusIcon():
     global ICON_WORKING
     global GTK_ICON
@@ -212,9 +223,10 @@ def initStatusIcon():
     GTK_ICON.connect('activate', on_left_click)
 
     AUTO_CHECK_TIMER_THREAD = threading.Thread(target=autoCheckTimer)
-    #So application does not hang
+    # So application does not hang
     AUTO_CHECK_TIMER_THREAD.daemon = True
     AUTO_CHECK_TIMER_THREAD.start()
+
 
 if __name__ == '__main__':
     initStatusIcon()

@@ -18,6 +18,7 @@ from subprocess import call
 
 from MyGitUtil import DirtyState
 
+
 def handleGitDir(path, status):
     try:
         print("Handling: "+str(path)+" "+str(status))
@@ -35,12 +36,14 @@ def handleGitDir(path, status):
         traceback.print_exc()
         myGuiMessage("Operation failed", traceback.format_exc())
 
+
 def myGuiMessage(title, message) :
     messageWindow = Tkinter.Tk()
     messageWindow.wm_title(title)
     Label(messageWindow, text=message, justify=LEFT).pack()
     messageWindow.mainloop()
-    
+
+
 def showDirtyDirectories(dirDictionary):
     rootWindow = Tkinter.Tk()
     rootWindow.wm_title("Git dirty directories")
@@ -60,6 +63,7 @@ def showDirtyDirectories(dirDictionary):
 
     rootWindow.mainloop()
 
+
 def guiTest():
     dirDictionary = {}
     dirDictionary["/home/test/aaa/ccc"] = DirtyState.LOCAL_DIRTY
@@ -68,6 +72,7 @@ def guiTest():
     dirDictionary["/home/test/ddd/cc"] = DirtyState.REMOTE_BEHIND
     dirDictionary["/home/test/"] = DirtyState.CLEAN
     showDirtyDirectories(dirDictionary)
-    
+
+
 if __name__ == "__main__":
     guiTest()

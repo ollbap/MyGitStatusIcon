@@ -12,9 +12,9 @@ import sys
 import json
 from MyUtil import myPrint
 
+
 def configTest():
     cpath = _getConfigurationFilePath()
-    #writeConfig(cpath)
     config = _readConfig(cpath)
     printConfig(config)
     config.getboolean('InitialState', 'auto_check')
@@ -22,7 +22,8 @@ def configTest():
     p2 = config.get('CheckPaths', 'offline_root_paths')
     type(p1)
     type(p2)
-    
+
+
 def _getConfigurationFilePath(): 
     envirVar = os.environ.get("MY_GIT_STATUS_ICON_CONF_DIR")
     base = None
@@ -32,6 +33,7 @@ def _getConfigurationFilePath():
         base = os.path.expanduser("~/.config")
     
     return os.path.join(base,"myGitStatusIcon.init")     
+
 
 def _writeConfig(cpath):
     cfgfile = open(cpath,'w')
@@ -51,6 +53,7 @@ def _writeConfig(cpath):
     parser.write(cfgfile)
     cfgfile.close()
 
+
 def _readConfig(cpath):
     try:
         source = open(cpath, 'r')
@@ -66,16 +69,19 @@ def _readConfig(cpath):
     parser.set('CheckPaths', 'offline_root_paths', json.loads(parser.get('CheckPaths', 'offline_root_paths')))
     
     return parser 
-    
+
+
 def printConfig(config): 
     for section in config.sections():
         myPrint(section)
         for name, value in config.items(section):
             myPrint('  %s = %r' % (name, value))
-    
+
+
 def readConfig(): 
     cpath = _getConfigurationFilePath()
     return _readConfig(cpath)
-        
+
+
 if __name__ == "__main__":
     configTest()
