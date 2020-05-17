@@ -45,12 +45,12 @@ GIT_OFFLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'offline_root_paths').split(',
 
 ICON = None
 
-ICON_CLEAN = "icons/f-check_256.svg"
-ICON_ERROR = "icons/f-cross_256.svg"
-ICON_WORKING = "icons/f-server_128.svg"
-ICON_UPLOAD = "icons/f-top_256.svg"
-ICON_DOWNLOAD = "icons/f-bottom_256.svg"
-ICON_LOCAL_CHANGES = "icons/f-my_left_right_256.svg"
+ICON_CLEAN = "icons/f-check_256.png"
+ICON_ERROR = "icons/f-cross_256.png"
+ICON_WORKING = "icons/f-server_128.png"
+ICON_UPLOAD = "icons/f-top_256.png"
+ICON_DOWNLOAD = "icons/f-bottom_256.png"
+ICON_LOCAL_CHANGES = "icons/f-my_left_right_256.png"
 
 ICON_OPTIONS = {
     DirtyState.CLEAN: ICON_CLEAN,
@@ -115,15 +115,13 @@ def showLastDirtyDirectories_FromGuiBackground(ignored):
 def updateIconState(state):
     global ICON
     myPrint("    Update state " + str(state))
-    # TODO load correct icons
-    ICON.image = Image.open("icons/f-server_128.png")
+    ICON.icon = Image.open(ICON_OPTIONS[state])
 
 
 def updateIconAsWorking():
     global ICON
     myPrint("    Update state Working")
-    # TODO load correct icons
-    ICON.image = Image.open("icons/f-check_256.png")
+    ICON.icon = Image.open(ICON_WORKING)
 
 
 def change_AUTO_CHECK_MODE(auto_item):
@@ -190,11 +188,9 @@ def initStatusIcon():
         item("Quit", quit_callback)
     )
 
-    # TODO load correct icons
-    image1 = Image.open("icons/f-server_128.png")
-    image2 = Image.open("icons/f-check_256.png")
+    firstIconImage = Image.open(ICON_WORKING)
 
-    ICON = pystray.Icon("Icon Title", image1, "title", menu)
+    ICON = pystray.Icon("Icon Title", firstIconImage, "title", menu)
     ICON.run()
 
 
