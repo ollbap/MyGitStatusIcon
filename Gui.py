@@ -50,7 +50,7 @@ def showDirtyDirectories(dirDictionary):
     # title.pack()
     
     rowIndex = 0
-    for path, status in dirDictionary.iteritems():
+    for path, status in dirDictionary.items():
         if status != DirtyState.CLEAN:
             button = tkinter.Button(rootWindow,
                                     width=15,

@@ -45,8 +45,8 @@ def _writeConfig(cpath):
     parser.set('InitialState', 'force_auto_show_check_dialog_times', "6")
 
     parser.add_section('CheckPaths')
-    parser.set('CheckPaths', 'online_root_paths', """ ["~/"]  """)
-    parser.set('CheckPaths', 'offline_root_paths', """     []  """)
+    parser.set('CheckPaths', 'online_root_paths', """ ~/  """)
+    parser.set('CheckPaths', 'offline_root_paths', """       """)
 
     parser.write(cfgfile)
     cfgfile.close()
@@ -63,8 +63,8 @@ def _readConfig(cpath):
     parser = configparser.ConfigParser()
     parser.read_file(source)
 
-    parser.set('CheckPaths', 'online_root_paths', json.loads(parser.get('CheckPaths', 'online_root_paths')))
-    parser.set('CheckPaths', 'offline_root_paths', json.loads(parser.get('CheckPaths', 'offline_root_paths')))
+    # parser.set('CheckPaths', 'online_root_paths', json.loads(parser.get('CheckPaths', 'online_root_paths')))
+    # parser.set('CheckPaths', 'offline_root_paths', json.loads(parser.get('CheckPaths', 'offline_root_paths')))
 
     return parser
 

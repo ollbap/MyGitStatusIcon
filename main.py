@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Sun May 20
@@ -6,9 +6,11 @@ Created on Sun May 20
 @author: ollbap
 """
 
+from pystray import MenuItem as item
+import pystray
+from PIL import Image
+
 import traceback
-import gobject
-import gtk
 import os
 from MyUtil import myPrint
 from MyGitUtil import gitCheckDirtyStateRecursive
@@ -38,10 +40,10 @@ if DEBUG_MODE:
 
 ONLINE_CHECK_MODE = CONFIG.getboolean('InitialState', 'online_check')
 
-GIT_ONLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'online_root_paths')
-GIT_OFFLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'offline_root_paths')
+GIT_ONLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'online_root_paths').split(',')
+GIT_OFFLINE_ROOT_PATHS = CONFIG.get('CheckPaths', 'offline_root_paths').split(',')
 
-GTK_ICON = None
+ICON = None
 
 ICON_CLEAN = "icons/f-check_256.svg"
 ICON_ERROR = "icons/f-cross_256.svg"
@@ -81,7 +83,7 @@ def check_now():
 
         m1 = gitCheckDirtyStateRecursive(GIT_ONLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
         m2 = gitCheckDirtyStateRecursive(GIT_OFFLINE_ROOT_PATHS, ONLINE_CHECK_MODE)
-        states = dict(m1.items() + m2.items())
+        states = {**m1, **m2}
 
         maxState = DirtyState.CLEAN
         for path, state in states.items():
@@ -111,17 +113,17 @@ def showLastDirtyDirectories_FromGuiBackground(ignored):
 
 
 def updateIconState(state):
-    global GTK_ICON
+    global ICON
     myPrint("    Update state " + str(state))
-    GTK_ICON.set_tooltip("State: " + str(state.name))
-    GTK_ICON.set_from_file(ICON_OPTIONS[state])
+    # TODO load correct icons
+    ICON.image = Image.open("icons/f-server_128.png")
 
 
 def updateIconAsWorking():
-    global GTK_ICON
+    global ICON
     myPrint("    Update state Working")
-    GTK_ICON.set_tooltip("Working")
-    GTK_ICON.set_from_file(ICON_WORKING)
+    # TODO load correct icons
+    ICON.image = Image.open("icons/f-check_256.png")
 
 
 def change_AUTO_CHECK_MODE(auto_item):
@@ -138,51 +140,11 @@ def change_online_mode(item):
 
 def quit_callback(ignored):
     global AUTO_CHECK_TIMER_THREAD
-    global GTK_ICON
-
-    GTK_ICON.set_visible(False)
     myPrint("Quitting")
-    gtk.main_quit()
+    # TODO QUIT
 
 
-def make_menu(event_button, event_time, data=None):
-    menu = gtk.Menu()
-
-    show_dirty_item = gtk.MenuItem("Show Dirty")
-    menu.append(show_dirty_item)
-    show_dirty_item.connect_object("activate", showLastDirtyDirectories_FromGuiBackground, ())
-    show_dirty_item.show()
-
-    check_item = gtk.MenuItem("Check")
-    menu.append(check_item)
-    check_item.connect_object("activate", check_from_gui, ())
-    check_item.show()
-
-    auto_item = gtk.CheckMenuItem("Auto")
-    auto_item.set_active(AUTO_CHECK_MODE)
-    menu.append(auto_item)
-    auto_item.connect_object("activate", change_AUTO_CHECK_MODE, (auto_item))
-    auto_item.show()
-
-    online_item = gtk.CheckMenuItem("Online")
-    online_item.set_active(ONLINE_CHECK_MODE)
-    menu.append(online_item)
-    online_item.connect_object("activate", change_online_mode, (online_item))
-    online_item.show()
-
-    kill_item = gtk.MenuItem("Quit")
-    menu.append(kill_item)
-    kill_item.connect_object("activate", quit_callback, ())
-    kill_item.show()
-
-    menu.popup(None, None, None, event_button, event_time)
-
-
-def on_right_click(data, event_button, event_time):
-    make_menu(event_button, event_time)
-
-
-def on_left_click(event):
+def showUpdatesOrCheck(event):
     global LAST_CHECK_STATUS
     if LAST_CHECK_STATUS == DirtyState.CLEAN:
         check_from_gui(())
@@ -212,22 +174,29 @@ def autoCheckTimer():
 
 def initStatusIcon():
     global ICON_WORKING
-    global GTK_ICON
+    global ICON
     global AUTO_CHECK_TIMER_THREAD
 
-    gobject.threads_init()
     os.chdir(os.path.dirname(__file__))
-
-    GTK_ICON = gtk.status_icon_new_from_file(ICON_WORKING)
-    GTK_ICON.connect('popup-menu', on_right_click)
-    GTK_ICON.connect('activate', on_left_click)
 
     AUTO_CHECK_TIMER_THREAD = threading.Thread(target=autoCheckTimer)
     # So application does not hang
     AUTO_CHECK_TIMER_THREAD.daemon = True
     AUTO_CHECK_TIMER_THREAD.start()
 
+    menu = (
+        item("Show updates", showUpdatesOrCheck),
+        item("Check", check_from_gui),
+        item("Quit", quit_callback)
+    )
+
+    # TODO load correct icons
+    image1 = Image.open("icons/f-server_128.png")
+    image2 = Image.open("icons/f-check_256.png")
+
+    ICON = pystray.Icon("Icon Title", image1, "title", menu)
+    ICON.run()
+
 
 if __name__ == '__main__':
     initStatusIcon()
-    gtk.main()
