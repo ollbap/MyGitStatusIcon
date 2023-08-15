@@ -6,3 +6,6 @@
 
 #Python compiled bytecode files
 *.pyc
+
+#Virtual environment
+venv
