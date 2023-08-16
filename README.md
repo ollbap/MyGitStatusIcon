@@ -5,14 +5,23 @@ This is a simple project that uses gitpython api to create a status icon that no
 The idea is to have something midway between git and dropbox. You get a cloud storage using git as a low level storage with concurrent version control and also have some automatic notifications to remember to push and pull changes.
 
 ### Install dependencies
+For it to work well I used to install this in the system, else I get incompatibilities like ugly icons and menu not displayed
+
 ```
-pip install gitpython
-pip install pytray
+apt install python-tk (or the package manager that you are using)
 ```
 
-Ubuntu 18.04
+Install virtual environment, with system-site-packages so tk is used from environment
+
 ```
-apt install python-tk
+python -m venv venv --system-site-packages
+venv/bin/pip install gitpython pystray
+```
+
+Test run with
+
+```
+venv/bin/python main.py
 ```
 
 ### How to execute
